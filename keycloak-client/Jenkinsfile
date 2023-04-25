@@ -19,7 +19,7 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                cd ipm-be
+                cd keycloak-client
                 mvn clean package
                 '''
             }
@@ -38,7 +38,7 @@ pipeline {
 			}
 			steps {
                 sh '''
-                cd ipm-be
+                cd keycloak-client
                 mvn deploy -Dmaven.test.skip=true
                 '''
             }
