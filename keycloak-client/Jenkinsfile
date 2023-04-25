@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    tools {
+        maven 'Maven-3.8.4' 
+        jdk 'jdk-17' 
+    }
+    stages {
+        stage ('Initialize') {
+            steps {
+                sh '''
+                echo "PATH = ${PATH}"
+                echo "M2_HOME = ${M2_HOME}"
+                echo "BRANCH_NAME = ${BRANCH_NAME}"
+                java -version
+                '''
+            }
+        }
+
+        stage ('Build') {
+            steps {
+                sh '''
+                cd ipm-be
+                mvn clean package
+                '''
+            }
+			post {
+		        always {
+		            junit '**/target/surefire-reports/*.xml'
+		        }
+			}
+		}
+
+        stage ('Deploy') {
+			when {
+			    not {
+			        branch 'master'
+			    }
+			}
+			steps {
+                sh '''
+                cd ipm-be
+                mvn deploy -Dmaven.test.skip=true
+                '''
+            }
+        }
+
+    }
+}
