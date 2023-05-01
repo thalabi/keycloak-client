@@ -1,6 +1,9 @@
 package com.kerneldc.keycloakclient.controller;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,35 +18,42 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SandboxController {
 	
-	//private  securityContext;
+private record UserInfo(String username, String firstName, String lastName, String email, List<String> roles, List<String> backEndAuthorities) {};
 
-	@GetMapping(path = "ping")
-	public String ping() {
+	@GetMapping(path = "/protected/sandboxController/ping")
+	public UserInfo UserInfo() {
 		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Jwt) {
-			var jwt = (Jwt)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			LOGGER.info("jwt id: {}, claims: {}", jwt.getId(), jwt.getClaims());
-			
 			
 			var jwtAuthenticationToken= (JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 			LOGGER.info("jwtAuthenticationToken: {}" ,jwtAuthenticationToken);
 			LOGGER.info("jwtAuthenticationToken.name: {}" ,jwtAuthenticationToken.getName());
-			var jwt2 = (Jwt)jwtAuthenticationToken.getPrincipal();
-			LOGGER.info("jwt2 id: {}, claims: {}", jwt2.getId(), jwt2.getClaims());
-			var authorities = jwtAuthenticationToken.getAuthorities();
-			var authortiesList = authorities.stream().map(auth -> auth.getAuthority()).collect(Collectors.toList());
-			authortiesList.sort(null);
-			var username = jwtAuthenticationToken.getName();
-			LOGGER.info("username: {}", username);
-			var response =  "{\"ping-authortiesList\": \""+authortiesList+"\", \"ping-username\": \""+username+"\"}";
-			LOGGER.info("reponse: {}" ,response);
 			
-			return response;
+			var jwt = (Jwt)jwtAuthenticationToken.getPrincipal();
+			LOGGER.info("jwt id: {}, claims: {}", jwt.getId(), jwt.getClaims());
+			for (Entry<String, Object> entry : jwt.getClaims().entrySet()) {
+				LOGGER.info("jwt, {} = {}", entry.getKey(), entry.getValue());
+				
+			}
+			Map<String, List<String>> realmAccess = jwt.getClaim("realm_access");
+			var roles = realmAccess.get("roles");
+			roles.sort(null);
+
+			var authorities = jwtAuthenticationToken.getAuthorities();
+			var backEndAuthorities = authorities.stream().map(auth -> auth.getAuthority()).collect(Collectors.toList());
+			backEndAuthorities.sort(null);
+			
+			var userInfo = new UserInfo(jwt.getClaims().get("preferred_username").toString(),
+					jwt.getClaims().get("given_name").toString(), jwt.getClaims().get("family_name").toString(),
+					jwt.getClaims().get("email").toString(), roles, backEndAuthorities);
+			LOGGER.info("userInfo: {}", userInfo);
+			
+			return userInfo;
 		} else {
-			return "{\"ping\": \"pong\"}";
+			return new UserInfo("", "","","", List.of(""), List.of(""));
 		}
 	}
 
-	@GetMapping(path = "noBearerTokenPing")
+	@GetMapping(path = "/sandboxController/noBearerTokenPing")
 	public String noBearerTokenPing() {
 		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Jwt) {
 			var jwt = (Jwt)SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -45,8 +45,8 @@ public class SecurityConfig {
 				// authorizeRequests.anyRequest().hasRole("SCOPE_PROFILE"))
 
 		httpSecurity.authorizeRequests()
-		.mvcMatchers("/noBearerTokenPing", "/actuator/*").permitAll()
-		.mvcMatchers("/ping").hasRole("realm_sso-app-user-role")
+		.mvcMatchers("/sandboxController/noBearerTokenPing", "/actuator/*").permitAll()
+		.mvcMatchers("/protected/sandboxController/ping").hasRole("realm_sso-app-user-role")
 		//.mvcMatchers("/noBearerTokenPing").hasRole("realm_sso2-app-admin-role")
 		;
 
