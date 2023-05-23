@@ -18,10 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SandboxController {
 	
-private record UserInfo(String username, String firstName, String lastName, String email, List<String> roles, List<String> backEndAuthorities) {};
+	private record UserInfo(String username, String firstName, String lastName, String email, List<String> roles, List<String> backEndAuthorities) {};
 
-	@GetMapping(path = "/protected/sandboxController/ping")
-	public UserInfo UserInfo() {
+	@GetMapping(path = "/protected/sandboxController/getUserInfo")
+	public UserInfo getUserInfo() {
 		if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Jwt) {
 			
 			var jwtAuthenticationToken= (JwtAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();

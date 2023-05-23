@@ -46,7 +46,7 @@ public class SecurityConfig {
 
 		httpSecurity.authorizeRequests()
 		.mvcMatchers("/sandboxController/noBearerTokenPing", "/actuator/*").permitAll()
-		.mvcMatchers("/protected/sandboxController/ping").hasRole("realm_sso-app-user-role")
+		.mvcMatchers("/protected/sandboxController/getUserInfo").hasRole("realm_sso-app-user-role")
 		//.mvcMatchers("/noBearerTokenPing").hasRole("realm_sso2-app-admin-role")
 		;
 
